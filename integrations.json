@@ -1,0 +1,16 @@
+[
+    {
+    # GET ROSTER
+    "id": "1044441548277948436",
+    "application_id": "1044438772042956861",
+    "version": "1044441548277948437",
+    "default_permission": true,
+    "default_member_permissions": null,
+    "type": 1,
+    "name": "roster",
+    "name_localizations": null,
+    "description": "Get the current guild roster",
+    "description_localizations": null,
+    "dm_permission": true
+}
+]
