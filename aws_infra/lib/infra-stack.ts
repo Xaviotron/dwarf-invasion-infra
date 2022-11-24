@@ -31,6 +31,8 @@ export class InfraStack extends cdk.Stack {
             code: lambda.Code.fromAsset(getAssetPath('simAggregator', 'node')),
             architecture: lambda.Architecture.X86_64,
             environment: {
+                BUCKET_URL: bucket.urlForObject(),
+                BUCKET_NAME: bucket.bucketName
             },
             description:
                 "This is the handler for aggregating the results of the sims and posting them",
