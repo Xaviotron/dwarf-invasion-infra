@@ -83,8 +83,9 @@ export class InfraStack extends cdk.Stack {
 
     // Add lambda permissions to write to S3
     bucket.grantWrite(webhookHandler);
-    bucket.grantWrite(webhookHandler);
-    bucket.grantRead(aggregatorHandler);
+    bucket.grantWrite(aggregatorHandler);
+
+    bucket.grantRead(webhookHandler);
     bucket.grantRead(aggregatorHandler);
 
     const api = new HttpApi(this, `${prefix}-http-api`, {
@@ -94,6 +95,22 @@ export class InfraStack extends cdk.Stack {
                 webhookHandler,
            )
     });
+    const xav_user = iam.User.fromUserName(this, `${prefix}-xav-user`, "xavier");
+    const user_contributor_policy = new iam.Policy(this, `${prefix}-user-contributor-policy`, {
+        policyName: `${prefix}-user-contributor-policy`,
+        statements: [
+            new iam.PolicyStatement({
+                actions: [
+                    "s3:*"
+                ],
+                resources: [
+                    bucket.bucketArn,
+                    bucket.bucketArn + "/*"
+                ]
+            })
+        ]
+    });
+    user_contributor_policy.attachToUser(xav_user);
     // implement the role from eventbridge to invoke the lambda
     new cdk.CfnOutput(this, `${prefix}-api-url`, {
         value: api.url!,
