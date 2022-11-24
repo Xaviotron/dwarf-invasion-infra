@@ -1,13 +1,13 @@
 import fetch from "node-fetch";
 import { Character } from "./types/character";
 import { RosterItem } from "./types/roster";
-import { EventBridgeClient, PutRuleCommand } from "@aws-sdk/client-eventbridge";
+import { SchedulerClient, CreateScheduleCommand } from "@aws-sdk/client-scheduler";
 import { requestBody } from "./requests/sim";
 import { SimResponse } from "./types/sim";
 
 const LAMBDA_ARN = process.env.SIM_AGGREGATOR_ARN;
 const RAIDBOTS_BASE_URL = "https://www.raidbots.com";
-const RAIDBOTS_WOW_API_BASE_URL = `${RAIDBOTS_BASE_URL}/api/wowapi`;
+const RAIDBOTS_WOW_API_BASE_URL = `${RAIDBOTS_BASE_URL}/wowapi`;
 const REALM_SLUG = "zuljin";
 const WOW_REGION = "us";
 
@@ -28,7 +28,7 @@ export const handler = async () => {
     
     console.log("Creating sim requests...");
     const reports_req = await Promise.all(user_profiles.map((user_profile) => {
-        const simRes = fetch(`${RAIDBOTS_BASE_URL}/simc`, {
+        const simRes = fetch(`${RAIDBOTS_BASE_URL}/sim`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -41,25 +41,27 @@ export const handler = async () => {
     console.log("Got all sim reports data");
 
     const now = new Date();
-    const rule_name = `dwarf-invasion-sim-${now.toISOString()}`;
+    const timestamp = Math.floor(now.getTime() / 1000);
+    const scheduler_name = `dwarf-invasion-sim-${timestamp}`;
+    // TODO CHANGE TO 1 HOUR
+    const delay = 60;
+    const sched_date = new Date((timestamp + delay) * 1000);
 
     const AWS_REGION = process.env.AWS_REGION;
-    const ebClient = new EventBridgeClient({ region: AWS_REGION });
-    const putEvent = new PutRuleCommand({
-        Name: rule_name,
-        State: "ENABLED",
-        RoleArn: process.env.EVENT_ROLE_ARN!,
-        EventPattern: JSON.stringify({
-            source: ["aws.events"],
-            resources: [LAMBDA_ARN],
-            detail: {
-                reports
-            },
-        }),
-        // in the next hour
-        ScheduleExpression: `at(${now.toISOString()})`,
-    });
+    const schedClient = new SchedulerClient({ region: AWS_REGION });
+    const sched = new CreateScheduleCommand({
+        Name: scheduler_name,
+        ScheduleExpression: `at(${sched_date.toISOString().split('.')[0]})`,
+        Target: {
+            Arn: LAMBDA_ARN,
+            RoleArn: process.env.EVENT_ROLE_ARN!,
+            Input: JSON.stringify(reports)
+        },
+        FlexibleTimeWindow: {
+            Mode: "OFF",
+        }
+    })
     console.log("Creating schedule for lambda aggregator...");
-    await ebClient.send(putEvent);
+    await schedClient.send(sched);
     console.log("Created event rule");
 }

@@ -13,8 +13,9 @@ export class InfraStack extends cdk.Stack {
 
     const prefix = "dwarfinvasion";
     const role = new iam.Role(this, `${prefix}-eventbridge-role`, {
-        assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
+        assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
     });
+
 
     const bucket = new s3.Bucket(this, `${prefix}-bucket`, {
         bucketName: "dwarf-invasion",
@@ -23,7 +24,7 @@ export class InfraStack extends cdk.Stack {
     });
 
     const aggregatorHandler = new lambda.Function(this, `${prefix}-sim-aggregator-handler`, {
-            functionName: `${prefix}-backend-handler`,
+            functionName: `${prefix}-sim-aggregator-handler`,
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: "index.handler",
             memorySize: 1024,
@@ -34,9 +35,13 @@ export class InfraStack extends cdk.Stack {
             description:
                 "This is the handler for aggregating the results of the sims and posting them",
     });
+    role.addToPolicy(new iam.PolicyStatement({
+        actions: ['lambda:InvokeFunction'],
+        resources: [aggregatorHandler.functionArn],
+    }));
 
     const simCreatorHandler = new lambda.Function(this, `${prefix}-sim-creator-handler`, {
-            functionName: `${prefix}-backend-handler`,
+            functionName: `${prefix}-sim-creator-handler`,
             runtime: lambda.Runtime.NODEJS_16_X,
             handler: "index.handler",
             memorySize: 1024,
@@ -50,6 +55,15 @@ export class InfraStack extends cdk.Stack {
             description:
                 "This is the handler for initating sims against the raidbot api and create the scheduler",
     });
+
+    // Add policy to allow the lambda to control eventbridge
+    simCreatorHandler.addToRolePolicy(new iam.PolicyStatement({
+        actions: [
+            "scheduler:CreateSchedule",
+            "iam:PassRole"
+        ],
+        resources: ["*"],
+    }));
 
     const webhookHandler = new lambda.Function(this, `${prefix}-api-handler`, {
             functionName: `${prefix}-backend-handler`,
@@ -81,12 +95,17 @@ export class InfraStack extends cdk.Stack {
            )
     });
     // implement the role from eventbridge to invoke the lambda
-
-
-
     new cdk.CfnOutput(this, `${prefix}-api-url`, {
         value: api.url!,
         description: "URL for the API",
+    });
+    new cdk.CfnOutput(this, `${prefix}-sim-creator-handler-role`, {
+        value: simCreatorHandler.role?.roleArn!,
+        description: "Role for the sim creator handler",
+    });
+    new cdk.CfnOutput(this, `${prefix}-rule-role`, {
+        value: role.roleArn,
+        description: "Role for the eventbridge rules created by the sim creator handler",
     });
   }
 }
