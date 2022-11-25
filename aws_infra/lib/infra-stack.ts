@@ -8,7 +8,8 @@ import * as events from 'aws-cdk-lib/aws-events';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { getAssetPath } from '../utils';
-import { SIM_WH_DISCORD } from './webhooks';
+import { config } from "dotenv";
+config();
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -18,7 +19,6 @@ export class InfraStack extends cdk.Stack {
     const role = new iam.Role(this, `${prefix}-eventbridge-role`, {
         assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
     });
-
 
     const bucket = new s3.Bucket(this, `${prefix}-bucket`, {
         bucketName: "dwarf-invasion",
@@ -36,7 +36,7 @@ export class InfraStack extends cdk.Stack {
             environment: {
                 BUCKET_URL: bucket.urlForObject(),
                 BUCKET_NAME: bucket.bucketName,
-                DISCORD_WH_URL: SIM_WH_DISCORD
+                DISCORD_WH_URL: process.env.DISCORD_WH_URL!
             },
             description:
                 "This is the handler for aggregating the results of the sims and posting them",
