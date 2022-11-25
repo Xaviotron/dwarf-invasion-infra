@@ -3,9 +3,12 @@ import { Construct } from 'constructs';
 import { HttpApi } from "@aws-cdk/aws-apigatewayv2-alpha";
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as events from 'aws-cdk-lib/aws-events';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { getAssetPath } from '../utils';
+import { SIM_WH_DISCORD } from './webhooks';
 
 export class InfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -32,7 +35,8 @@ export class InfraStack extends cdk.Stack {
             architecture: lambda.Architecture.X86_64,
             environment: {
                 BUCKET_URL: bucket.urlForObject(),
-                BUCKET_NAME: bucket.bucketName
+                BUCKET_NAME: bucket.bucketName,
+                DISCORD_WH_URL: SIM_WH_DISCORD
             },
             description:
                 "This is the handler for aggregating the results of the sims and posting them",
@@ -82,6 +86,13 @@ export class InfraStack extends cdk.Stack {
                 "Bot for Dwarf Invasion Discord server Slash command integration",
     });
 
+    // Trigger the sim creator lambda every week (the 5 am is to make sure that on NA
+    // there isn't a lot of people simming on RaidBots)
+    const simSchedule = new events.Rule(this, `${prefix}-schedule`, {
+        // Every friday at 5 am EST
+        schedule: events.Schedule.expression('cron(0 10 ? * FRI *)'),
+        targets: [new targets.LambdaFunction(simCreatorHandler)],
+    });
 
     // Add lambda permissions to write to S3
     bucket.grantWrite(webhookHandler);
