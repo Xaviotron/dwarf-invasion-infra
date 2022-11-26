@@ -1,6 +1,7 @@
 export interface SimResponse {
   jobId: string
   simId: string
+  error?: string
   simcVersion: string
   title: string
   type: string
