@@ -5,11 +5,13 @@ use axum::routing::post;
 use axum::Json;
 use axum::{routing::get, Router};
 use ed25519_dalek::{Signature, Verifier};
+use http::header::CONTENT_TYPE;
 use http::{HeaderMap, Request};
 use hyper::Body;
 use serde::{Deserialize, Serialize};
 use tower_http::trace::TraceLayer;
 pub mod commands;
+pub mod responses;
 
 /// Verify an ed25519 signature
 /// used for validating discord webhooks
@@ -58,12 +60,14 @@ struct DiscordUser {
 enum Command {
     Roster,
     AddChar,
+    Roll,
 }
 impl Command {
     fn from_id_str(s: &str) -> Option<Command> {
         match s {
             "1044441548277948436" => Some(Command::Roster),
             "1044740904235319377" => Some(Command::AddChar),
+            "1045885525703270460" => Some(Command::Roll),
             _ => None,
         }
     }
@@ -170,13 +174,19 @@ async fn integration(
                         Command::Roster => {
                             let (res, status) = commands::roster::run(&body).await.unwrap();
                             let mut headers = HeaderMap::new();
-                            headers.insert("content-type", "application/json".parse().unwrap());
+                            headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
                             Ok((status, headers, Json(res)))
                         }
                         Command::AddChar => {
                             let (res, status) = commands::addchar::run(&body).await.unwrap();
                             let mut headers = HeaderMap::new();
-                            headers.insert("content-type", "application/json".parse().unwrap());
+                            headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+                            Ok((status, headers, Json(res)))
+                        }
+                        Command::Roll => {
+                            let (res, status) = commands::roll::run(&body).await.unwrap();
+                            let mut headers = HeaderMap::new();
+                            headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
                             Ok((status, headers, Json(res)))
                         }
                     }

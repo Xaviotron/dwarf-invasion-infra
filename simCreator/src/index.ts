@@ -8,18 +8,25 @@ import { SimResponse } from "./types/sim";
 const LAMBDA_ARN = process.env.SIM_AGGREGATOR_ARN;
 const RAIDBOTS_BASE_URL = "https://www.raidbots.com";
 const RAIDBOTS_WOW_API_BASE_URL = `${RAIDBOTS_BASE_URL}/wowapi`;
+const BUCKET_URL = process.env.BUCKET_URL!;
+const CLASS_INFO_URL = `${BUCKET_URL}/classes.json`;
 const REALM_SLUG = "zuljin";
 const WOW_REGION = "us";
 
 export const handler = async () => {
     const ROSTER_URL = process.env.ROSTER_URL!;
     console.log("Fetching roster...");
-    const rosterRes = await fetch(ROSTER_URL);
-    const rosterData = await rosterRes.json() as RosterItem[];
-    console.log("Roster fetched.");
+    const dataRes = [];
+    dataRes.push(fetch(CLASS_INFO_URL));
+    dataRes.push(fetch(ROSTER_URL));
 
+    const data = await Promise.all(dataRes);
+    const [classInfoData, rosterData] = await Promise.all(data.map((res) => res.json())) as [any, RosterItem[]];
+
+    console.log("Roster fetched.");
     console.log("Fetching characters...");
-    const char_profiles_req = await Promise.all(rosterData.map((rosterItem) => {
+    const roster = rosterData.filter((player) => classInfoData["classes"][player.class][player.spec].role === "dps");
+    const char_profiles_req = await Promise.all(roster.map((rosterItem) => {
         const url = `${RAIDBOTS_WOW_API_BASE_URL}/character/${WOW_REGION}/${REALM_SLUG}/${rosterItem.character_name}`;
         return fetch(url);
     }));

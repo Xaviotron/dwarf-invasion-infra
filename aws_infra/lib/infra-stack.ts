@@ -36,7 +36,9 @@ export class InfraStack extends cdk.Stack {
             environment: {
                 BUCKET_URL: bucket.urlForObject(),
                 BUCKET_NAME: bucket.bucketName,
-                DISCORD_WH_URL: process.env.DISCORD_WH_URL!
+                DISCORD_WH_URL: process.env.DISCORD_WH_URL!,
+                DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID!,
+                DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN!
             },
             description:
                 "This is the handler for aggregating the results of the sims and posting them",
@@ -56,7 +58,10 @@ export class InfraStack extends cdk.Stack {
             environment: {
                 SIM_AGGREGATOR_ARN: aggregatorHandler.functionArn,
                 ROSTER_URL: bucket.urlForObject("roster.json"),
-                EVENT_ROLE_ARN: role.roleArn
+                EVENT_ROLE_ARN: role.roleArn,
+                DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID!,
+                DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN!,
+                BUCKET_URL: bucket.urlForObject(),
             },
             description:
                 "This is the handler for initating sims against the raidbot api and create the scheduler",
@@ -80,7 +85,11 @@ export class InfraStack extends cdk.Stack {
             architecture: lambda.Architecture.X86_64,
             environment: {
                 RUST_BACKTRACE: "1",
-                DISCORD_APP_ID: "1044438772042956861"
+                DISCORD_APP_ID: "1044438772042956861",
+                DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID!,
+                DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN!,
+                BUCKET_URL: bucket.urlForObject(),
+                BUCKET_NAME: bucket.bucketName,
             },
             description:
                 "Bot for Dwarf Invasion Discord server Slash command integration",

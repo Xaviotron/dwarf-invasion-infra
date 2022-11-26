@@ -32,4 +32,6 @@ aws-types = "0.13"
 hex = "0.4.3"
 anyhow = "1.0.66"
 aws-sdk-s3 = "0.21.0"
+futures = "0.3.25"
+rand = "0.8.5"
 

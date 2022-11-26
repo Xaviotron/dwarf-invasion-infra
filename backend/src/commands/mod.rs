@@ -4,6 +4,7 @@ use axum::http::StatusCode;
 use crate::{DiscordPayload, DiscordResponse, DiscordResponseData};
 
 pub mod addchar;
+pub mod roll;
 pub mod roster;
 
 pub async fn ping(_body: &DiscordPayload) -> Result<(DiscordResponse, StatusCode)> {
