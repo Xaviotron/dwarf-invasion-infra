@@ -8,10 +8,9 @@ export default defineConfig(() => {
     return {
         plugins: [solid()],
         resolve: {
-        alias: {
-            "utils": path.resolve(__dirname, "../../packages/utils")
+            alias: {
+                utils: path.resolve(__dirname, "../../packages/utils"),
+            },
         },
-    }
     };
 });
-

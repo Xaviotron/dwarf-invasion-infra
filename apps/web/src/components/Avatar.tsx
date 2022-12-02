@@ -1,19 +1,19 @@
 import { Component } from "solid-js";
 
 interface AvatarProps {
-	src: string;
-	style: string;
+    src: string;
+    style: string;
 }
 const Avatar: Component<AvatarProps> = (props) => {
-	return (
-		<div class={`rounded-full border-2 border-orange-300 ` + props.style}>
-			<img
-				src={props.src}
-				class="block h-full w-full rounded-full object-cover"
-				alt="avatar"
-			/>
-		</div>
-	);
+    return (
+        <div class={`rounded-full border-2 border-orange-300 ` + props.style}>
+            <img
+                src={props.src}
+                class="block h-full w-full rounded-full object-cover"
+                alt="avatar"
+            />
+        </div>
+    );
 };
 
 export default Avatar;

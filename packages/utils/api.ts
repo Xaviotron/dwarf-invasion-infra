@@ -8,7 +8,6 @@ export interface BasicPlayerOptions {
     region: string;
 }
 
-
 export const getRaiderIOClient = () => {
     const BASE_API_URL = "https://raider.io/api/v1";
     return {
@@ -35,7 +34,7 @@ export const getRaiderIOClient = () => {
 export const getBasicPlayer = async (opts: BasicPlayerOptions) => {
     const api = getRaiderIOClient();
     const data = await api.get<CharacterResponse>(
-        `/characters/profile?region=${opts.region}&realm=${opts.realm}&name=${opts.name}`
+        `/characters/profile?region=${opts.region}&realm=${opts.realm}&name=${opts.name}`,
     );
     return data!;
 };
@@ -45,4 +44,4 @@ export const getRoster = async () => {
     const response = await fetch(`${url}/roster.json`);
     const roster = await response.json();
     return roster as RosterItem[];
-}
+};

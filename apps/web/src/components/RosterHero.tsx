@@ -20,4 +20,3 @@ const RosterHero: Component<RosterHeroProps> = (props) => {
 };
 
 export default RosterHero;
-

@@ -5654,7 +5654,7 @@ rollup@^2.79.1:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rome@^10.0.0, rome@latest:
+rome@^10.0.0, rome@^10.0.1, rome@latest:
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/rome/-/rome-10.0.1.tgz#3974603123b75ecbf98b306bcda8b7fa007c80b0"
   integrity sha512-RfaDa+cSustBsjX6bj3fWqEhoNxXrK1uNgKHpkCHAqp20QMJXnCRtbokhirNMe0utyGI9GTO/sDoK7hJP7O8Bw==
