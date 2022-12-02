@@ -1,0 +1,5 @@
+{
+    "extends": "tsconfig/simAggregator.json",
+    "include": ["**/*.ts", "**/*.tsx"],
+    "exclude": ["node_modules"]
+}

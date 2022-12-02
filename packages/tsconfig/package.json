@@ -1,0 +1,12 @@
+{
+	"name": "tsconfig",
+	"version": "0.0.0",
+	"private": true,
+	"files": [
+		"base.json",
+		"simCreator.json",
+		"simAggregator.json",
+		"utils.json",
+		"solid-start.json"
+	]
+}
