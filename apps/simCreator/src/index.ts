@@ -34,49 +34,49 @@ export const handler = async () => {
 		(player) =>
 			classInfoData["classes"][player.class][player.spec].role === "dps"
 	);
-	const char_profiles_req = await Promise.all(
+	const charProfilesReq = await Promise.all(
 		roster.map((rosterItem) => {
 			const url = `${RAIDBOTS_WOW_API_BASE_URL}/character/${WOW_REGION}/${REALM_SLUG}/${rosterItem.character_name}`;
 			return fetch(url);
 		})
 	);
-	const user_profiles: Character[] = await Promise.all(
-		char_profiles_req.map((res) => res.json())
+	const userProfiles: Character[] = await Promise.all(
+		charProfilesReq.map((res) => res.json())
 	);
 	console.log("Got wow character profiles");
 
 	console.log("Creating sim requests...");
-	const reports_req = await Promise.all(
-		user_profiles.map((user_profile) => {
+	const reportsReq = await Promise.all(
+		userProfiles.map((userProfile) => {
 			const simRes = fetch(`${RAIDBOTS_BASE_URL}/sim`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(
-					requestBody(user_profile.name, user_profile)
+					requestBody(userProfile.name, userProfile)
 				),
 			});
 			return simRes;
 		})
 	);
 	const reports: SimResponse[] = await Promise.all(
-		reports_req.map((res) => res.json())
+		reportsReq.map((res) => res.json())
 	);
 	console.log("Got all sim reports data");
 
 	const now = new Date();
 	const timestamp = Math.floor(now.getTime() / 1000);
-	const scheduler_name = `dwarf-invasion-sim-${timestamp}`;
+	const schedulerName = `dwarf-invasion-sim-${timestamp}`;
 	// TODO CHANGE TO 1 HOUR
-	const delay = 300;
-	const sched_date = new Date((timestamp + delay) * 1000);
+	const scheduleDelay = 300;
+	const scheduleDate = new Date((timestamp + scheduleDelay) * 1000);
 
 	const AWS_REGION = process.env.AWS_REGION;
-	const schedClient = new SchedulerClient({ region: AWS_REGION });
-	const sched = new CreateScheduleCommand({
-		Name: scheduler_name,
-		ScheduleExpression: `at(${sched_date.toISOString().split(".")[0]})`,
+	const schedulerClient = new SchedulerClient({ region: AWS_REGION });
+	const schedule = new CreateScheduleCommand({
+		Name: schedulerName,
+		ScheduleExpression: `at(${scheduleDate.toISOString().split(".")[0]})`,
 		Target: {
 			Arn: LAMBDA_ARN,
 			RoleArn: process.env.EVENT_ROLE_ARN!,
@@ -87,6 +87,6 @@ export const handler = async () => {
 		},
 	});
 	console.log("Creating schedule for lambda aggregator...");
-	await schedClient.send(sched);
+	await schedulerClient.send(schedule);
 	console.log("Created event rule");
 };
