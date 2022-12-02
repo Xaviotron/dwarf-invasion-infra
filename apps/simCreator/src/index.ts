@@ -69,7 +69,7 @@ export const handler = async () => {
 	const timestamp = Math.floor(now.getTime() / 1000);
 	const scheduler_name = `dwarf-invasion-sim-${timestamp}`;
 	// TODO CHANGE TO 1 HOUR
-	const delay = 60;
+	const delay = 300;
 	const sched_date = new Date((timestamp + delay) * 1000);
 
 	const AWS_REGION = process.env.AWS_REGION;
