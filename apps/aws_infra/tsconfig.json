@@ -1,7 +1,4 @@
 {
-    "references":[
-        {"path":"../lib"}
-    ],
   "compilerOptions": {
       "composite": true,
     "target": "ES2020",
