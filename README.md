@@ -1,28 +1,14 @@
-# Turborepo starter
-
-This is an official Yarn (Berry) starter turborepo.
-
 ## What's inside?
 
 This turborepo uses [Yarn](https://yarnpkg.com/) as a package manager. It includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `eslint-config-custom`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- `aws_infra`: The IaC repository for all the deployed resources maintaining the DI infra (Typescript)
+- `simAggregator`: The handler responsible for aggregating all the completed sims and posting results to our Discord server (Typescript)
+- `simCreator`: The handler responsible for being triggered weekly to initiate all the sims inside the roster (queues the invocation of `simAggregator`) (Typescript)
+- `web`: a Sold-Start app for the Dwarf Invasion website (Typescript)
+- `webhook`: The Discord Slash command webhook handler (Rust)
 
 ### Build
 
